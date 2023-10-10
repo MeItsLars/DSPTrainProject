@@ -1,0 +1,32 @@
+:root {
+  --primary-dark: #1a1f24;
+  --secondary-dark: #2d343b;
+  --hover-dark: #2e2e36;
+  --text-dark: white;
+}
+
+head, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  font-size: larger;
+}
+
+.form {
+  width: 30vw;
+}
+
+.list {
+  width: 70vw;
+  position: relative;
+  height: 100vh;
+  background: url('../ressources/img/wallpaper.jpg') no-repeat center center;
+  background-size: cover;
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
