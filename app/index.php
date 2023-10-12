@@ -10,6 +10,25 @@
     <link rel="stylesheet" href="./styles/styles.css">
 </head>
 
+<?php
+    $bg = array('wallpaper_1.jpg', 'wallpaper_2.jpg', 'wallpaper_3.jpg', 'wallpaper_4.jpg', 'wallpaper_5.jpg', 'wallpaper_6.jpg', 'wallpaper_7.jpg' ); // array of filenames
+    $selectedBg = $bg[rand(1, count($bg)-1)];
+
+?>
+<style type="text/css">
+    .list{
+        background: url('../ressources/img/<?php echo $selectedBg; ?>') no-repeat center center;
+        width: 70vw;
+        position: relative;
+        height: 100vh;
+        background-size: cover;
+        background-attachment: fixed;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
 <body>
 
     <section class="form">
