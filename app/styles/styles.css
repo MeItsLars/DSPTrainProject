@@ -20,10 +20,10 @@ body {
 }
 
 .list {
+  background: url('../ressources/img/wallpaper_1.jpg') no-repeat center center;
   width: 70vw;
   position: relative;
   height: 100vh;
-  background: url('../ressources/img/wallpaper.jpg') no-repeat center center;
   background-size: cover;
   background-attachment: fixed;
   display: flex;
