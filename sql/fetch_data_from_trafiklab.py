@@ -2,7 +2,7 @@ import os
 import shutil
 import zipfile
 
-data_url = 'https://api.resrobot.se/gtfs/sweden.zip?key=1cea7f8f-1584-4cd2-bff7-8f5cc07d6361'
+data_url = 'https://api.resrobot.se/v2.1/gtfs/sweden.zip?accessId=1cea7f8f-1584-4cd2-bff7-8f5cc07d6361'
 
 # Delete old data/gtfs-sverige-2 directory
 if os.path.exists('./data/gtfs-sverige-2'):
