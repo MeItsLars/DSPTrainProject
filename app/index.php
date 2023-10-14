@@ -1,10 +1,42 @@
+<?php 
+$envFile = './.env';
+$connection = (array) null;
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        list($key, $value) = explode('=', $line, 2);
+        $connection[$key] = $value;
+    }
+
+} else {
+    die(".env file not found.");
+}
+
+try {
+    $pdo = new PDO(
+        'pgsql:host=' . $connection['DB_HOST'] . 
+        ';port=' . $connection['DB_PORT'] . 
+        ';dbname=' . $connection['DB_NAME'],
+        $connection['DB_USER'],
+        $connection['DB_PASS']
+    );
+
+    // Set PDO to throw exceptions on error
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // You're connected! You can now use $pdo to interact with the database.
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project</title>
+    <title>Find your way</title>
 
     <link rel="stylesheet" href="./styles/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="./styles/styles.css">

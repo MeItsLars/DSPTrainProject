@@ -33,14 +33,14 @@ h2 {
   opacity: 0.85;
   min-width: 65vw;
   text-align: center;
+  overflow: hidden;
 }
 
 .custom-table-responsive {
   border-radius: 10px;
   border-radius: 10px;
   max-height: 75vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .custom-table thead tr, .custom-table thead th {
@@ -65,7 +65,7 @@ h2 {
 
 .custom-table tbody tr:not(.spacer) {
   border-radius: 7px;
-  overflow: hidden;
+  /* overflow: hidden; */
   -webkit-transition: .3s all ease;
   -o-transition: .3s all ease;
   transition: .3s all ease;
