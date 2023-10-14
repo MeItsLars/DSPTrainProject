@@ -1,5 +1,7 @@
 <link rel="stylesheet" href="./styles/form.css">
-
+<?php 
+    
+?>
 <div class="booking-form">
     <div class="form-header">
         <h1>Find your way</h1>
@@ -7,11 +9,11 @@
     <form>
         <div class="form-group">
             <input class="form-control" type="text">
-            <span class="form-label">Flying from</span>
+            <span class="form-label">from</span>
         </div>
         <div class="form-group">
             <input class="form-control" type="text">
-            <span class="form-label">Flying to</span>
+            <span class="form-label">to</span>
         </div>
         <div class="form-group">
             <div class="form-checkbox">
