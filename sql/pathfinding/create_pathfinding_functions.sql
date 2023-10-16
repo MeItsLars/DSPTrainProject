@@ -63,8 +63,33 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION reconstruct_path(used_edge_id BIGINT[], from_node BIGINT, to_node BIGINT)
+RETURNS TABLE (edge_id BIGINT) AS $$
+DECLARE
+    current BIGINT;
+    next BIGINT;
+BEGIN
+    -- We create a quick temporary table to store the results
+    CREATE TEMP TABLE temp_result (edge_id2 BIGINT);
+
+    -- Backtrack from the to_node to the from_node
+    current := to_node;
+    WHILE current != from_node LOOP
+        -- Fetch the next stop ID
+        SELECT e.from_stop_id INTO next FROM edges e WHERE e.edge_id = used_edge_id[current];
+        -- Insert the edge_id into the temporary table
+        INSERT INTO temp_result VALUES (used_edge_id[current]::BIGINT);
+        current := next;
+    END LOOP;
+    -- Return the results from the temporary table
+    RETURN QUERY SELECT edge_id2 FROM temp_result;
+    -- Drop the temporary table
+    DROP TABLE temp_result;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION astar_search(from_node BIGINT, to_node BIGINT)
-RETURNS TABLE (stop_id BIGINT) AS $$
+RETURNS TABLE (edge_id BIGINT) AS $$
 DECLARE
     openSet BIGINT[];
     closedSet BIGINT[];
@@ -72,7 +97,7 @@ DECLARE
     gScore REAL[];
     fScore REAL[];
     current BIGINT;
-    node BIGINT;
+	node BIGINT;
     neighbor_edge RECORD;
     tentative_gScore REAL;
 BEGIN
@@ -105,18 +130,8 @@ BEGIN
 
         -- If the current node is the to_node, we have found the path
         IF current = to_node THEN
-            RETURN QUERY
-            WITH RECURSIVE path(stop_id) AS (
-                SELECT current
-                UNION ALL
-                SELECT cameFrom[path.stop_id]
-                FROM path
-                WHERE cameFrom[path.stop_id] IS NOT NULL
-            )
-            SELECT path.stop_id
-            FROM path
-            ORDER BY path.stop_id DESC;
-
+            RAISE NOTICE 'Path found';
+            RETURN QUERY SELECT * FROM reconstruct_path(cameFrom, from_node, to_node);
             RETURN;
         END IF;
 
@@ -129,31 +144,30 @@ BEGIN
         closedSet := array_append(closedSet, current);
 
         -- Get the neighbors of the current node
-        -- TODO: Distinct necessary?
         FOR neighbor_edge IN (
-            SELECT DISTINCT to_stop_id AS neighbor, distance
+            SELECT edges.edge_id, from_stop_id, to_stop_id, travel_time
             FROM edges
             WHERE from_stop_id = current
         ) LOOP
-            tentative_gScore := gScore[current] + neighbor_edge.distance;
-            RAISE NOTICE '> Neighbor: %', neighbor_edge.neighbor;
+            tentative_gScore := gScore[current] + neighbor_edge.travel_time;
+            RAISE NOTICE '> Neighbor: %', neighbor_edge.to_stop_id;
             RAISE NOTICE '  Tentative gScore: %', tentative_gScore;
 
             -- If the neighbor is in the closed set and the tentative gScore is greater than the gScore of the neighbor,
             -- we skip this neighbor
-            IF neighbor_edge.neighbor = ANY(closedSet) AND tentative_gScore >= gScore[neighbor_edge.neighbor] THEN
+            IF neighbor_edge.to_stop_id = ANY(closedSet) AND tentative_gScore >= gScore[neighbor_edge.to_stop_id] THEN
                 RAISE NOTICE ' Neighbor is closed (and higher gScore)';
                 CONTINUE;
             END IF;
 
             -- If the neighbor is not in the open set or the tentative gScore is less than the gScore of the neighbor,
             -- we add the neighbor to the open set and update the cameFrom, gScore and fScore arrays
-            IF neighbor_edge.neighbor NOT IN (SELECT unnest(openSet)) OR tentative_gScore < gScore[neighbor_edge.neighbor] THEN
+            IF neighbor_edge.to_stop_id NOT IN (SELECT unnest(openSet)) OR tentative_gScore < gScore[neighbor_edge.to_stop_id] THEN
                 RAISE NOTICE ' Neighbor is not in open set or lower gScore';
-                openSet := array_append(openSet, neighbor_edge.neighbor);
-                cameFrom[neighbor_edge.neighbor] := current;
-                gScore[neighbor_edge.neighbor] := tentative_gScore;
-                fScore[neighbor_edge.neighbor] := tentative_gScore + distance_heuristic(neighbor_edge.neighbor, to_node);
+                openSet := array_append(openSet, neighbor_edge.to_stop_id);
+                cameFrom[neighbor_edge.to_stop_id] := neighbor_edge.edge_id;
+                gScore[neighbor_edge.to_stop_id] := tentative_gScore;
+                fScore[neighbor_edge.to_stop_id] := tentative_gScore + distance_heuristic(neighbor_edge.to_stop_id, to_node);
             END IF;
         END LOOP;
     END LOOP;
