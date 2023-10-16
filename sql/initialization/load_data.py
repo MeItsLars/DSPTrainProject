@@ -28,6 +28,20 @@ for file in files:
         csv_reader = csv.reader(f, delimiter=',', quotechar='"')
         lines = list(csv_reader)
 
+        # For the stop_times.txt file, we must convert the 'arrival_time' and 'departure_time' fields
+        # from text-based HH:MM:SS to integer-based seconds since midnight.
+        if file == 'stop_times.txt':
+            print('Converting arrival_time and departure_time fields to seconds since midnight')
+            for line in lines:
+                # Skip the header
+                if line[0] == 'trip_id':
+                    continue
+                arrival_time = line[1].split(':')
+                departure_time = line[2].split(':')
+                line[1] = int(arrival_time[0]) * 3600 + int(arrival_time[1]) * 60 + int(arrival_time[2])
+                line[2] = int(departure_time[0]) * 3600 + int(departure_time[1]) * 60 + int(departure_time[2])
+
+        # Write the converted data to a new file
         with open(converted_data_file, 'w', encoding='utf-8', newline='') as f_converted:
             csv_writer = csv.writer(f_converted, delimiter=';', quotechar='"')
             csv_writer.writerows(lines)

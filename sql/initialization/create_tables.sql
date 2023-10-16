@@ -16,14 +16,14 @@ CREATE TABLE IF NOT EXISTS calendar (
     friday INTEGER NOT NULL,
     saturday INTEGER NOT NULL,
     sunday INTEGER NOT NULL,
-    start_date TEXT NOT NULL,
-    end_date TEXT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     PRIMARY KEY (service_id)
 );
 
 CREATE TABLE IF NOT EXISTS calendar_dates (
     service_id BIGINT NOT NULL,
-    date TEXT NOT NULL,
+    date DATE NOT NULL,
     exception_type INTEGER NOT NULL,
     PRIMARY KEY (service_id, date),
     FOREIGN KEY (service_id) REFERENCES calendar (service_id)
@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS stops (
 
 CREATE TABLE IF NOT EXISTS stop_times (
     trip_id BIGINT NOT NULL,
-    arrival_time TEXT NOT NULL,
-    departure_time TEXT NOT NULL,
+    arrival_time INTEGER NOT NULL,
+    departure_time INTEGER NOT NULL,
     stop_id BIGINT NOT NULL,
     stop_sequence INTEGER NOT NULL,
     pickup_type INTEGER NOT NULL,
