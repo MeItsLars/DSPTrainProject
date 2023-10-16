@@ -8,11 +8,12 @@ CREATE TABLE IF NOT EXISTS nodes (
 CREATE TABLE IF NOT EXISTS edges (
     edge_id SERIAL PRIMARY KEY,
     trip_id BIGINT,
+    service_id BIGINT,
     from_stop_id BIGINT NOT NULL,
     to_stop_id BIGINT NOT NULL,
     travel_time REAL NOT NULL,
-    start_time INTEGER NOT NULL,
-    edge_type INTEGER NOT NULL,
+    departure_time INTEGER,
+    transport_type INTEGER NOT NULL,
     FOREIGN KEY (from_stop_id) REFERENCES stops (stop_id),
     FOREIGN KEY (to_stop_id) REFERENCES stops (stop_id)
 );
@@ -22,7 +23,7 @@ CREATE INDEX IF NOT EXISTS edges_from_stop_id_idx ON edges (from_stop_id);
 CREATE OR REPLACE FUNCTION create_nodes_and_edges()
 RETURNS void AS $$ 
 BEGIN
-    SET statement_timeout = 120000;
+    SET statement_timeout = 600000;
 
     DELETE FROM nodes;
     DELETE FROM edges;
@@ -32,13 +33,14 @@ BEGIN
 
     -- Fill the edges table with data from all the various tables
     -- 1. Add transfers to the edges table
-    INSERT INTO edges (trip_id, from_stop_id, to_stop_id, travel_time, start_time, edge_type)
-    SELECT -1, from_stop_id, to_stop_id, min_transfer_time, -1, 0 FROM transfers;
+    INSERT INTO edges (trip_id, service_id, from_stop_id, to_stop_id, travel_time, departure_time, transport_type)
+    SELECT NULL, NULL, from_stop_id, to_stop_id, min_transfer_time, NULL, 0 FROM transfers;
     
     -- 2. Add the edges between stops in the same trip
-    INSERT INTO edges (trip_id, from_stop_id, to_stop_id, travel_time, start_time, edge_type)
-    SELECT s1.trip_id, s1.stop_id, s2.stop_id, s2.arrival_time - s1.departure_time, s1.departure_time, 1
+    INSERT INTO edges (trip_id, service_id, from_stop_id, to_stop_id, travel_time, departure_time, transport_type)
+    SELECT s1.trip_id, t.service_id, s1.stop_id, s2.stop_id, s2.arrival_time - s1.departure_time, s1.departure_time, 1
     FROM stop_times AS s1
+    INNER JOIN trips AS t ON s1.trip_id = t.trip_id
     INNER JOIN stop_times AS s2 ON s1.trip_id = s2.trip_id
     WHERE s1.stop_sequence + 1 = s2.stop_sequence;
 END;

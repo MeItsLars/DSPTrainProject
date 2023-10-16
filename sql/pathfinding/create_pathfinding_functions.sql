@@ -1,20 +1,3 @@
--- CREATE TABLE IF NOT EXISTS nodes (
---     stop_id BIGINT NOT NULL,
---     stop_lat REAL NOT NULL,
---     stop_lon REAL NOT NULL,
---     FOREIGN KEY (stop_id) REFERENCES stops (stop_id)
--- );
-
--- CREATE TABLE IF NOT EXISTS edges (
---     from_stop_id BIGINT NOT NULL,
---     to_stop_id BIGINT NOT NULL,
---     distance REAL NOT NULL,
---     start_time INTEGER NOT NULL,
---     edge_type INTEGER NOT NULL,
---     FOREIGN KEY (from_stop_id) REFERENCES stops (stop_id),
---     FOREIGN KEY (to_stop_id) REFERENCES stops (stop_id)
--- );
-
 CREATE OR REPLACE FUNCTION distance_heuristic(from_node BIGINT, to_node BIGINT)
 RETURNS REAL AS $$
 DECLARE
@@ -88,7 +71,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION astar_search(from_node BIGINT, to_node BIGINT)
+CREATE OR REPLACE FUNCTION astar_search(from_node BIGINT, to_node BIGINT, travel_day DATE, travel_time INTEGER)
 RETURNS TABLE (edge_id BIGINT) AS $$
 DECLARE
     openSet BIGINT[];
@@ -110,8 +93,8 @@ BEGIN
     gScore := array[]::REAL[];
     fScore := array[]::REAL[];
 
-    -- Initialize the gScore and fScore of the from_node
-    gScore[from_node] := 0;
+    -- Initialize the from_node variables
+    gScore[from_node] := travel_time;
     fScore[from_node] := distance_heuristic(from_node, to_node);
 
     -- Loop until the open set is empty
@@ -143,13 +126,24 @@ BEGIN
         -- Add the current node to the closed set
         closedSet := array_append(closedSet, current);
 
-        -- Get the neighbors of the current node
+        -- Get the neighbors of the current node that are reachable on the given day
         FOR neighbor_edge IN (
-            SELECT edges.edge_id, from_stop_id, to_stop_id, travel_time
-            FROM edges
-            WHERE from_stop_id = current
+            SELECT e.edge_id, e.service_id, e.from_stop_id, e.to_stop_id, e.travel_time, e.departure_time
+            FROM edges e
+            WHERE e.from_stop_id = current
+            AND e.departure_time >= gScore[current]
+            AND EXISTS (
+                SELECT 1
+                FROM calendar_dates cd
+                WHERE cd.service_id = e.service_id AND cd.date = travel_day AND cd.exception_type = 1
+                UNION
+                SELECT 1
+                FROM calendar c
+                WHERE c.service_id = e.service_id AND travel_day BETWEEN c.start_date AND c.end_date
+            )
         ) LOOP
-            tentative_gScore := gScore[current] + neighbor_edge.travel_time;
+            -- tentative_gScore := gScore[current] + neighbor_edge.travel_time + (neighbor_edge.departure_time - gScore[current])
+            tentative_gScore := neighbor_edge.departure_time + neighbor_edge.travel_time;
             RAISE NOTICE '> Neighbor: %', neighbor_edge.to_stop_id;
             RAISE NOTICE '  Tentative gScore: %', tentative_gScore;
 
