@@ -13,7 +13,7 @@ exists = cursor.fetchone()
 if exists:
     delete = input("Database 'transport' already exists. Delete? (y/n) ")
     if delete == 'y':
-        cursor.execute("DROP DATABASE transport")
+        cursor.execute("DROP DATABASE transport WITH (FORCE)")
         print("Database 'transport' deleted successfully")
     else:
         exit()

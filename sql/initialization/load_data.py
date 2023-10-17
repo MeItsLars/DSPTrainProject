@@ -7,10 +7,10 @@ conn = psycopg2.connect("host=188.165.199.47 dbname=transport user=postgres pass
 conn.autocommit = True
 cursor = conn.cursor()
 
-data_folder = 'data/gtfs-sverige-2'
-converted_data_folder = 'data/gtfs-sverige-2-converted'
+data_folder = 'data/gtfs-sverige-3'
+converted_data_folder = 'data/gtfs-sverige-3-converted'
 files = ['agency.txt', 'calendar.txt', 'calendar_dates.txt', 'routes.txt', 
-         'trips.txt', 'stops.txt', 'stop_times.txt', 'transfers.txt']
+         'trips.txt', 'stops.txt', 'stop_times.txt', 'transfers.txt', 'attributions.txt']
 
 # Create converted data folder
 if not os.path.exists(converted_data_folder):

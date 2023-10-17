@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS agency (
     agency_name TEXT NOT NULL,
     agency_url TEXT NOT NULL,
     agency_timezone TEXT NOT NULL,
-    agency_lang TEXT NOT NULL,
+    agency_lang TEXT,
+    agency_fare_url TEXT,
     PRIMARY KEY (agency_id)
 );
 
@@ -30,22 +31,23 @@ CREATE TABLE IF NOT EXISTS calendar_dates (
 );
 
 CREATE TABLE IF NOT EXISTS routes (
-    route_id BIGINT NOT NULL,
+    route_id TEXT NOT NULL,
     agency_id BIGINT NOT NULL,
     route_short_name TEXT,
     route_long_name TEXT,
     route_type INTEGER NOT NULL,
-    route_url TEXT,
+    route_desc TEXT,
     PRIMARY KEY (route_id),
     FOREIGN KEY (agency_id) REFERENCES agency (agency_id)
 );
 
 CREATE TABLE IF NOT EXISTS trips (
-    route_id BIGINT NOT NULL,
+    route_id TEXT NOT NULL,
     service_id BIGINT NOT NULL,
     trip_id BIGINT NOT NULL,
     trip_headsign TEXT,
-    trip_short_name TEXT,
+    direction_id INTEGER,
+    shape_id BIGINT,
     PRIMARY KEY (trip_id),
     FOREIGN KEY (route_id) REFERENCES routes (route_id),
     FOREIGN KEY (service_id) REFERENCES calendar (service_id)
@@ -57,6 +59,8 @@ CREATE TABLE IF NOT EXISTS stops (
     stop_lat REAL NOT NULL,
     stop_lon REAL NOT NULL,
     location_type INTEGER,
+    parent_station BIGINT,
+    platform_code TEXT,
     PRIMARY KEY (stop_id)
 );
 
@@ -66,8 +70,11 @@ CREATE TABLE IF NOT EXISTS stop_times (
     departure_time INTEGER NOT NULL,
     stop_id BIGINT NOT NULL,
     stop_sequence INTEGER NOT NULL,
-    pickup_type INTEGER NOT NULL,
-    drop_off_type INTEGER NOT NULL,
+    stop_headsign TEXT,
+    pickup_type INTEGER,
+    drop_off_type INTEGER,
+    shape_dist_traveled REAL,
+    timepoint INTEGER,
     PRIMARY KEY (trip_id, stop_sequence),
     FOREIGN KEY (trip_id) REFERENCES trips (trip_id),
     FOREIGN KEY (stop_id) REFERENCES stops (stop_id)
@@ -84,4 +91,12 @@ CREATE TABLE IF NOT EXISTS transfers (
     FOREIGN KEY (to_stop_id) REFERENCES stops (stop_id),
     FOREIGN KEY (from_trip_id) REFERENCES trips (trip_id),
     FOREIGN KEY (to_trip_id) REFERENCES trips (trip_id)
+);
+
+
+CREATE TABLE IF NOT EXISTS attributions (
+    trip_id BIGINT NOT NULL,
+    organization_name TEXT,
+    is_operator INTEGER NOT NULL,
+    FOREIGN KEY (trip_id) REFERENCES trips (trip_id)
 );

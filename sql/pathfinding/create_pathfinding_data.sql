@@ -34,9 +34,16 @@ BEGIN
     -- Fill the edges table with data from all the various tables
     -- 1. Add transfers to the edges table
     INSERT INTO edges (trip_id, service_id, from_stop_id, to_stop_id, travel_time, departure_time, transport_type)
-    SELECT NULL, NULL, from_stop_id, to_stop_id, min_transfer_time, NULL, 0 FROM transfers;
+    SELECT NULL, NULL, from_stop_id, to_stop_id, COALESCE(min_transfer_time, 0), NULL, 0 FROM transfers;
+
+    -- 3. Add the edges between stops in the same parent station
+    INSERT INTO edges (trip_id, service_id, from_stop_id, to_stop_id, travel_time, departure_time, transport_type)
+    SELECT NULL, NULL, s1.stop_id, s2.stop_id, 1, NULL, 0
+    FROM stops AS s1
+    INNER JOIN stops AS s2 ON s1.parent_station = s2.parent_station
+    WHERE s1.stop_id != s2.stop_id;
     
-    -- 2. Add the edges between stops in the same trip
+    -- 3. Add the edges between stops in the same trip
     INSERT INTO edges (trip_id, service_id, from_stop_id, to_stop_id, travel_time, departure_time, transport_type)
     SELECT s1.trip_id, t.service_id, s1.stop_id, s2.stop_id, s2.arrival_time - s1.departure_time, s1.departure_time, 1
     FROM stop_times AS s1
