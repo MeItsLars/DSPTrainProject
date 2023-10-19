@@ -89,6 +89,10 @@ DECLARE
     previous_edge_trip_id BIGINT;
     same_stop_transfer_penalty REAL;
     tentative_gScore REAL;
+
+    temp_var_1 RECORD;
+    temp_var_2 RECORD;
+    temp_var_3 RECORD;
 BEGIN
     RAISE NOTICE 'Starting A* search from % to % on % at %', from_node, to_node, travel_day, travel_time;
 
@@ -113,7 +117,13 @@ BEGIN
             END IF;
         END LOOP;
         
-        RAISE NOTICE 'Current node: % (gScore: %, heuristic: %)', current, (gScore -> current::TEXT)::REAL, (fScore -> current::TEXT)::REAL - (gScore -> current::TEXT)::REAL;
+        SELECT * INTO temp_var_1 FROM stops WHERE stop_id = current;
+        RAISE NOTICE 'Current node: % (gScore: %, heuristic: %) (ID: %)', 
+            CONCAT(temp_var_1.stop_name, COALESCE(CONCAT(' (', temp_var_1.platform_code, ')'), '')),
+            (gScore -> current::TEXT)::REAL, 
+            (fScore -> current::TEXT)::REAL - (gScore -> current::TEXT)::REAL,
+            temp_var_1.stop_id;
+        
 
         -- If the current node is the to_node, we have found the path
         IF current = to_node THEN
@@ -135,14 +145,15 @@ BEGIN
             WHERE e.from_stop_id = current AND (
                 e.departure_time IS NULL OR (
                     e.departure_time >= (arrivalTime -> current::TEXT)::REAL
+                    AND e.departure_time <= (arrivalTime -> current::TEXT)::REAL + 1800
                     AND EXISTS (
                         SELECT 1
                         FROM calendar_dates cd
                         WHERE cd.service_id = e.service_id AND cd.date = travel_day AND cd.exception_type = 1
-                        UNION
-                        SELECT 1
-                        FROM calendar c
-                        WHERE c.service_id = e.service_id AND travel_day BETWEEN c.start_date AND c.end_date
+                        -- INTERSECT
+                        -- SELECT 1
+                        -- FROM calendar c
+                        -- WHERE c.service_id = e.service_id AND travel_day BETWEEN c.start_date AND c.end_date
                     )
                 )
             )
@@ -156,15 +167,36 @@ BEGIN
                                 + neighbor_edge.travel_time 
                                 + neighbor_edge.transfer_penalty
                                 + COALESCE(neighbor_edge.departure_time - (arrivalTime -> current::TEXT)::REAL, 0);
-            RAISE NOTICE 'Edge: % -> %, tentative gScore: %', neighbor_edge.from_stop_id, neighbor_edge.to_stop_id, tentative_gScore;
+            
+            SELECT * INTO temp_var_2 FROM stops WHERE stop_id = neighbor_edge.to_stop_id;
+            SELECT e.departure_time AS departure_time, e.trip_id AS trip_id, e.travel_time AS travel_time, r.route_short_name AS route_short_name, st.stop_headsign AS stop_headsign, t.service_id AS service_id
+            INTO temp_var_3 FROM edges e
+            LEFT JOIN stop_times st ON e.trip_id = st.trip_id AND e.from_stop_id = st.stop_id
+            LEFT JOIN trips t ON e.trip_id = t.trip_id
+            LEFT JOIN routes r ON t.route_id = r.route_id
+            WHERE e.edge_id = neighbor_edge.edge_id;
+            RAISE NOTICE '-> %, tentative gScore: % (ID: %) (Dep.T: %, TID: %, RID: %, Route: %, SID: %, TT: %) - gScore = % + % + % + %',
+                CONCAT(temp_var_2.stop_name, COALESCE(CONCAT(' (', temp_var_2.platform_code, ')'), '')),
+                tentative_gScore,
+                temp_var_2.stop_id,
+                temp_var_3.departure_time,
+                temp_var_3.trip_id,
+                temp_var_3.route_short_name,
+                temp_var_3.stop_headsign,
+                temp_var_3.service_id,
+                temp_var_3.travel_time,
+                (gScore -> current::TEXT)::REAL,
+                neighbor_edge.travel_time,
+                neighbor_edge.transfer_penalty,
+                COALESCE(neighbor_edge.departure_time - (arrivalTime -> current::TEXT)::REAL, 0);
 
             -- If the previous and neighbor edges are both in vehicles but not the same trip, we add a 1 minute transfer penalty
             same_stop_transfer_penalty := 0;
-            previous_edge_trip_id := (cameFromTripId -> current::TEXT)::BIGINT;
-            IF previous_edge_trip_id IS NOT NULL AND neighbor_edge.trip_id IS NOT NULL AND previous_edge_trip_id != neighbor_edge.trip_id THEN
-                tentative_gScore := tentative_gScore + 60;
-                same_stop_transfer_penalty := 60;
-            END IF;
+            -- previous_edge_trip_id := (cameFromTripId -> current::TEXT)::BIGINT;
+            -- IF previous_edge_trip_id IS NOT NULL AND neighbor_edge.trip_id IS NOT NULL AND previous_edge_trip_id != neighbor_edge.trip_id THEN
+            --     tentative_gScore := tentative_gScore + 60;
+            --     same_stop_transfer_penalty := 60;
+            -- END IF;
 
             -- If the neighbor is in the closed set and the tentative gScore is greater than the gScore of the neighbor,
             -- we skip this neighbor
