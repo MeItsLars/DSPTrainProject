@@ -75,15 +75,18 @@ umea_alidhojd = 55668 # Ålidhöjd
 umea_vasaplan = 55785 # Vasaplan
 umea_universum = 55664 # Universum
 umea_marknadsgatan = 56957 # Marknadsgatan (Ikea)
-ornskoldsvik_rese = 1570 # Örnsköldsvik Resecentrum
 umea_ostra = 1581 # Umeå Östra
+umea_busstation = 53785 # Umeå Busstation
 umea_central = 190 # Umeå Centralstation
+ornskoldsvik_rese = 1570 # Örnsköldsvik Resecentrum
 storuman_resecentrum = 428 # Storuman Resecentrum
 uppsala_central = 5 # Uppsala Centralstation
 
 # find_route(umea_universum, umea_alidhem, '20-10-2023', '16:05:00')
 # find_route(umea_universum, umea_alidhem, '20-10-2023', '16:00:00')
-find_route(storuman_resecentrum, umea_central, '21-10-2023', '04:00:00')
+# find_route(storuman_resecentrum, uppsala_central, '21-10-2023', '04:00:00')
+find_route(storuman_resecentrum, umea_busstation, '21-10-2023', '04:00:00')
+find_route(umea_central, uppsala_central, '21-10-2023', '10:22:00')
 
 # Close the connection to the PostgreSQL database
 cursor.close()
