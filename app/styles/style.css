@@ -1,0 +1,134 @@
+
+:root {
+    --primary-dark: #1a1f24;
+    --secondary-dark: #2d343b;
+    --hover-dark: #2e2e36;
+    --text-dark: white;
+  }
+
+  head, body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    display: flex;
+    font-size: larger;
+  }
+
+  .credit {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    padding-right: 10px;
+    font-size: 10px;
+  }
+  
+  .form {
+    width: 30vw;
+  }
+  
+  .list {
+    background: url('../ressources/img/wallpaper_1.jpg') no-repeat center center;
+    width: 70vw;
+    position: relative;
+    height: 100vh;
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .loader {
+    position: fixed;
+    width: 100vw;
+    z-index: 9999;
+    background: rgb(249,249,249);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height:100vh;
+  }
+  .cont {
+    position: relative;
+  }
+  
+  .track {
+  position: relative;
+  overflow:hidden;
+  width:50px;
+  height:100px;
+  border-left: 3px solid #333;
+  transform: skew(-10deg) rotateX(45deg);
+  }
+  
+  .track:before {
+  content:"";
+  position: absolute;
+  height:3px;
+  width:50px;
+  background-color: #333;
+  top:90px;
+  box-shadow: 0 0 #333, 0 -10px #333, 0 -20px #333, 0 -30px #333, 0 -40px #333, 0 -50px #333, 0 -50px #333, 0 -60px #333,0 -70px #333, 0 -80px #333, 0 -90px #333, 0 -100px #333, 0 -110px #333, 0 -120px #333, 0 -130px #333, 0 -140px #333;
+  animation: track 1s linear infinite;
+  }
+  .track:after {
+  content:"";
+  position: absolute;
+  transform: rotate(-15deg);
+  width:50px;
+  height: 120px;
+  background-color: #fff;
+  border-left: 3px solid #333;
+  left:30px;
+  top:-10px;
+  }
+  
+  .train {
+  position: absolute;
+  width: 60px;
+  height:60px;
+  background-color: #333;
+  border-radius:15px;
+  top:0;
+  left:-13px;
+  transform-origin: bottom;
+  animation: rotate 1s linear infinite;
+  }
+  
+  .train:before {
+  content:"";
+  position: absolute;
+  background-color: #ced4da;
+  width:20px;
+  height:15px;
+  left:9px;
+  top:15px;
+  box-shadow: 22px 0 #ced4da;
+  }
+  
+  .train:after {
+  content:"";
+  position: absolute;
+  background-color: #ced4da;
+  border-radius:50%;
+  height:10px;
+  width:10px;
+  top:45px;
+  left:10px;
+  box-shadow: 30px 0px #ced4da;
+  }
+  
+  @keyframes track {
+  0% {transform: translateY(70px) rotateX(45deg);}
+  100% {transform: translateY(0px) rotateX(45deg);}
+  }
+  
+  @keyframes rotate {
+  0% {transform: rotate(0);}
+  25% {transform: rotate(2deg);}
+  50% {transform: rotate(0);}
+  75% {transform: rotate(-2deg);}
+  100% {transform: rotate(0);}
+  }

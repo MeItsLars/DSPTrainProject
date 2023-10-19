@@ -1,28 +1,48 @@
 <link rel="stylesheet" href="./styles/form.css">
 <?php 
-    
+    include "./functions/query.php";
+    $stops = select_stops($pdo);
 ?>
 <div class="booking-form">
     <div class="form-header">
         <h1>Find your way</h1>
     </div>
-    <form>
+    <form action="#" method="post">
         <div class="form-group">
-            <input class="form-control" type="text">
+            <input class="form-control" id="from"  type="text" name="from" list="citynameFrom" oninput="myFunction(this)">
             <span class="form-label">from</span>
+            <datalist id="" class="from">
+                <?php
+                    foreach ($stops as $stop) { 
+                        echo '<option value="'.$stop["stop_id"].'">'.$stop["stop_name"].'</option>\n';                    
+                    }
+                ?>
+            </datalist>
         </div>
+        <script>
+
+        </script>
         <div class="form-group">
-            <input class="form-control" type="text">
+            <input class="form-control" id="to" type="text" name="to"  list="citynameTo" oninput="myFunction(this)">
             <span class="form-label">to</span>
+
+            <datalist id="" class="to">
+
+                <?php
+                    foreach ($stops as $stop) { 
+                        echo '<option value="'.$stop["stop_id"].'">'.$stop["stop_name"].'</option>\n';                    
+                    }
+                ?>
+            </datalist>
         </div>
         <div class="form-group">
             <div class="form-checkbox">
-                <label for="roundtrip">
-                    <input type="radio" id="roundtrip" name="flight-type" checked>
+                <label for="Departure">
+                    <input type="radio" id="Departure" name="Departure" checked>
                     <span></span>Departure
                 </label>
-                <label for="one-way">
-                    <input type="radio" id="one-way" name="flight-type">
+                <label for="Arrival">
+                    <input type="radio" id="Arrival" name="Arrival">
                     <span></span>Arrival
                 </label>
             </div>
@@ -32,61 +52,24 @@
                 <div class="form-group">
                     <input class="form-control" id="date" onblur="verifyDate(this)" name="date" type="date">
                     <span class="form-label">Date</span>
-                    <p class="errorMessageDate">Invalide date</p>
+                    <p class="errorMessageDate" id="errorMessageDate">Invalide date</p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input class="form-control" id="time" name="time" type="time">
+                    <input class="form-control" id="time" onblur="verifyHour(this)" name="time" type="time">
                     <span class="form-label">Hour</span>
-                    <p class="errorMessageHour">Invalide hour</p>
+                    <p class="errorMessageHour" id="errorMessageHour">Invalide hour</p>
                 </div>
             </div>
         </div>
 
 
         <div class="form-btn">
-            <button class="submit-btn">Check availability</button>
+            <button class="submit-btn" id="mySubmit" disabled>Check availability</button>
         </div>
     </form>
 </div>
 <script src="script/jquery-3.7.1.min.js"></script>
-<script>
-    $(function() {
-        var dtToday = new Date();
-
-        var month = dtToday.getMonth() + 1;
-        var day = dtToday.getDate();
-        var year = dtToday.getFullYear();
-        if (month < 10)
-            month = '0' + month.toString();
-        if (day < 10)
-            day = '0' + day.toString();
-
-        var minDate = year + '-' + month + '-' + day;
-
-        $('#date').attr('min', minDate);
-    });
-
-    function verifyDate(params) {
-        const date = new Date();
-
-        let day = date.getDate();
-        let month = date.getMonth() + 1;
-        let year = date.getFullYear();
-        let currentDate = `${year}-${month}-${day}`;
-
-        console.log(params.value);
-        console.log(currentDate);
-        console.log(currentDate > params.value);
-        if (currentDate > params.value) {
-            clearInput(params);
-            document.getElementsByClassName("errorMessageDate")[0].style.visibility = "visible";
-
-        }
-    }
-
-    function clearInput(target) {
-        target.value = "";
-    }
-</script>
+<script src="./script/minInputDatatlist.js"></script>
+<script src="./script/verifyInputs.js"></script>
