@@ -6,12 +6,17 @@ conn = psycopg2.connect("host=188.165.199.47 dbname=transport user=postgres pass
 conn.autocommit = True
 cursor = conn.cursor()
 
-start_stop = 55698 # Ålidhems Centrum
-# end_stop = 55785 # Vasaplan
-end_stop = 56957 # Marknadsgatan (Ikea)
-# end_stop = 9022050059027001 # Vindeln Centrum
-travel_day = '19-10-2023'
-travel_time = '13:35:00'
+# start_stop = 55698 # Ålidhems Centrum
+# end_stop = 55698 # Ålidhems Centrum
+# start_stop = 55785 # Vasaplan
+# end_stop = 56957 # Marknadsgatan (Ikea)
+# end_stop = 1570 # Örnsköldsvik Resecentrum
+# start_stop = 1581 # Umeå Östra
+start_stop = 190 # Umeå Centralstation
+end_stop = 5 # Uppsala Centralstation
+
+travel_day = '21-10-2023'
+travel_time = '06:00:00'
 travel_time_converted = int(travel_time.split(":")[0]) * 3600 + int(travel_time.split(":")[1]) * 60 + int(travel_time.split(":")[2])
 
 print("Executing pathfinder from stop {} to stop {} on {} at {} ({} seconds)".format(start_stop, end_stop, travel_day, travel_time, travel_time_converted))

@@ -79,12 +79,15 @@ DECLARE
     openSet BIGINT[];
     closedSet BIGINT[];
     cameFrom hstore;
+    cameFromTripId hstore;
     gScore hstore;
     fScore hstore;
     arrivalTime hstore;
     current BIGINT;
 	node BIGINT;
     neighbor_edge RECORD;
+    previous_edge_trip_id BIGINT;
+    same_stop_transfer_penalty REAL;
     tentative_gScore REAL;
 BEGIN
     RAISE NOTICE 'Starting A* search from % to % on % at %', from_node, to_node, travel_day, travel_time;
@@ -95,6 +98,7 @@ BEGIN
     -- Initialize other arrays
     closedSet := array[]::BIGINT[];
     cameFrom := ''::hstore;
+    cameFromTripId := ''::hstore;
     gScore := hstore(from_node::TEXT, '0');
     fScore := hstore(from_node::TEXT, distance_heuristic(from_node, to_node)::TEXT);
     arrivalTime := hstore(from_node::TEXT, travel_time::TEXT);
@@ -126,14 +130,12 @@ BEGIN
 
         -- Get the neighbors of the current node that are reachable on the given day
         FOR neighbor_edge IN (
-            SELECT e.edge_id, e.service_id, e.from_stop_id, e.to_stop_id, e.travel_time, e.transfer_penalty, e.departure_time
+            SELECT e.edge_id, e.trip_id, e.service_id, e.from_stop_id, e.to_stop_id, e.travel_time, e.transfer_penalty, e.departure_time
             FROM edges e
             WHERE e.from_stop_id = current AND (
                 e.departure_time IS NULL OR (
                     e.departure_time >= (arrivalTime -> current::TEXT)::REAL
-                    AND e.departure_time < (arrivalTime -> current::TEXT)::REAL + 3600
                     AND EXISTS (
-                        -- TODO: This part is actually not correct yet, with the wole calendar_dates exception thing
                         SELECT 1
                         FROM calendar_dates cd
                         WHERE cd.service_id = e.service_id AND cd.date = travel_day AND cd.exception_type = 1
@@ -156,6 +158,14 @@ BEGIN
                                 + COALESCE(neighbor_edge.departure_time - (arrivalTime -> current::TEXT)::REAL, 0);
             RAISE NOTICE 'Edge: % -> %, tentative gScore: %', neighbor_edge.from_stop_id, neighbor_edge.to_stop_id, tentative_gScore;
 
+            -- If the previous and neighbor edges are both in vehicles but not the same trip, we add a 1 minute transfer penalty
+            same_stop_transfer_penalty := 0;
+            previous_edge_trip_id := (cameFromTripId -> current::TEXT)::BIGINT;
+            IF previous_edge_trip_id IS NOT NULL AND neighbor_edge.trip_id IS NOT NULL AND previous_edge_trip_id != neighbor_edge.trip_id THEN
+                tentative_gScore := tentative_gScore + 60;
+                same_stop_transfer_penalty := 60;
+            END IF;
+
             -- If the neighbor is in the closed set and the tentative gScore is greater than the gScore of the neighbor,
             -- we skip this neighbor
             IF neighbor_edge.to_stop_id = ANY(closedSet) AND tentative_gScore >= (gScore -> neighbor_edge.to_stop_id::TEXT)::REAL THEN
@@ -167,9 +177,10 @@ BEGIN
             IF neighbor_edge.to_stop_id NOT IN (SELECT unnest(openSet)) OR tentative_gScore < (gScore -> neighbor_edge.to_stop_id::TEXT)::REAL THEN
                 openSet := array_append(openSet, neighbor_edge.to_stop_id);
                 cameFrom := cameFrom || hstore(neighbor_edge.to_stop_id::TEXT, neighbor_edge.edge_id::TEXT);
+                cameFromTripId := cameFromTripId || hstore(neighbor_edge.to_stop_id::TEXT, neighbor_edge.trip_id::TEXT);
                 gScore := gScore || hstore(neighbor_edge.to_stop_id::TEXT, tentative_gScore::TEXT);
                 fScore := fScore || hstore(neighbor_edge.to_stop_id::TEXT, (tentative_gScore + distance_heuristic(neighbor_edge.to_stop_id, to_node))::TEXT);
-                arrivalTime := arrivalTime || hstore(neighbor_edge.to_stop_id::TEXT, (COALESCE(neighbor_edge.departure_time::TEXT, arrivalTime -> current::TEXT)::REAL + neighbor_edge.travel_time)::TEXT);
+                arrivalTime := arrivalTime || hstore(neighbor_edge.to_stop_id::TEXT, (COALESCE(neighbor_edge.departure_time::TEXT, arrivalTime -> current::TEXT)::REAL + neighbor_edge.travel_time + neighbor_edge.transfer_penalty + same_stop_transfer_penalty)::TEXT);
             END IF;
         END LOOP;
     END LOOP;

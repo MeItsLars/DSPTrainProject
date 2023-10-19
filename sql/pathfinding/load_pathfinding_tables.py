@@ -33,7 +33,7 @@ cursor.execute("SELECT create_nodes_and_edges()")
 
 cursor.execute("CREATE INDEX IF NOT EXISTS idx_calendar_service_id ON calendar (service_id, start_date, end_date);")
 cursor.execute("CREATE INDEX IF NOT EXISTS idx_calendar_dates_service_id ON calendar_dates (service_id, date, exception_type);")
-cursor.execute("CREATE INDEX IF NOT EXISTS idx_edges_from_stop_id ON edges (from_stop_id, departure_time);")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_edges_from_stop_dep ON edges (from_stop_id, departure_time);")
 
 print("Done!")
 
