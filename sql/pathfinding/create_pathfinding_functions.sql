@@ -41,8 +41,8 @@ BEGIN
 
     -- Finally, we calculate the travel time (in seconds).
     -- As we need an underestimating heuristic, we will divide the distance
-    -- by the maximum speed of a train (300 km/h, or 83.33 m/s)
-    travel_time := distance / 83.33;
+    -- by the maximum speed of a train (200 km/h, or 55.5556 m/s)
+    travel_time := distance / 55;
 
     RETURN travel_time;
 END;
@@ -81,6 +81,7 @@ DECLARE
     cameFrom hstore;
     gScore hstore;
     fScore hstore;
+    arrivalTime hstore;
     current BIGINT;
 	node BIGINT;
     neighbor_edge RECORD;
@@ -94,13 +95,12 @@ BEGIN
     -- Initialize other arrays
     closedSet := array[]::BIGINT[];
     cameFrom := ''::hstore;
-    gScore := hstore(from_node::TEXT, travel_time::TEXT);
+    gScore := hstore(from_node::TEXT, '0');
     fScore := hstore(from_node::TEXT, distance_heuristic(from_node, to_node)::TEXT);
+    arrivalTime := hstore(from_node::TEXT, travel_time::TEXT);
 
     -- Loop until the open set is empty
     WHILE array_length(openSet, 1) > 0 LOOP
-        RAISE NOTICE 'Open set: %', openSet;
-
         -- Get the node in the open set with the lowest fScore
         current := openSet[1];
         FOREACH node IN ARRAY openSet LOOP
@@ -109,7 +109,7 @@ BEGIN
             END IF;
         END LOOP;
         
-        RAISE NOTICE 'Current node: %', current;
+        RAISE NOTICE 'Current node: % (gScore: %, heuristic: %)', current, (gScore -> current::TEXT)::REAL, (fScore -> current::TEXT)::REAL - (gScore -> current::TEXT)::REAL;
 
         -- If the current node is the to_node, we have found the path
         IF current = to_node THEN
@@ -117,8 +117,6 @@ BEGIN
             RETURN QUERY SELECT * FROM reconstruct_path(cameFrom, from_node, to_node);
             RETURN;
         END IF;
-
-        RAISE NOTICE 'Expanding...';
 
         -- Remove the current node from the open set
         openSet := array_remove(openSet, current);
@@ -128,12 +126,14 @@ BEGIN
 
         -- Get the neighbors of the current node that are reachable on the given day
         FOR neighbor_edge IN (
-            SELECT e.edge_id, e.service_id, e.from_stop_id, e.to_stop_id, e.travel_time, e.departure_time
+            SELECT e.edge_id, e.service_id, e.from_stop_id, e.to_stop_id, e.travel_time, e.transfer_penalty, e.departure_time
             FROM edges e
             WHERE e.from_stop_id = current AND (
                 e.departure_time IS NULL OR (
-                    e.departure_time >= (gScore -> current::TEXT)::REAL
+                    e.departure_time >= (arrivalTime -> current::TEXT)::REAL
+                    AND e.departure_time < (arrivalTime -> current::TEXT)::REAL + 3600
                     AND EXISTS (
+                        -- TODO: This part is actually not correct yet, with the wole calendar_dates exception thing
                         SELECT 1
                         FROM calendar_dates cd
                         WHERE cd.service_id = e.service_id AND cd.date = travel_day AND cd.exception_type = 1
@@ -145,31 +145,31 @@ BEGIN
                 )
             )
         ) LOOP
-            IF neighbor_edge.departure_time IS NULL THEN
-                tentative_gScore := (gScore -> current::TEXT)::REAL + neighbor_edge.travel_time;
-            ELSE
-                -- tentative_gScore := gScore[current] + neighbor_edge.travel_time + (neighbor_edge.departure_time - gScore[current])
-                tentative_gScore := neighbor_edge.departure_time + neighbor_edge.travel_time;
-            END IF;
-
-            RAISE NOTICE '> Neighbor: %', neighbor_edge.to_stop_id;
-            RAISE NOTICE '  Tentative gScore: %', tentative_gScore;
+            -- Tentative gScore:
+            -- gScore to get to the last node
+            -- travel time to get from the last node to the current node
+            -- penalty for transferring
+            -- waiting time at the last node
+            tentative_gScore := (gScore -> current::TEXT)::REAL 
+                                + neighbor_edge.travel_time 
+                                + neighbor_edge.transfer_penalty
+                                + COALESCE(neighbor_edge.departure_time - (arrivalTime -> current::TEXT)::REAL, 0);
+            RAISE NOTICE 'Edge: % -> %, tentative gScore: %', neighbor_edge.from_stop_id, neighbor_edge.to_stop_id, tentative_gScore;
 
             -- If the neighbor is in the closed set and the tentative gScore is greater than the gScore of the neighbor,
             -- we skip this neighbor
             IF neighbor_edge.to_stop_id = ANY(closedSet) AND tentative_gScore >= (gScore -> neighbor_edge.to_stop_id::TEXT)::REAL THEN
-                RAISE NOTICE ' Neighbor is closed (and higher gScore)';
                 CONTINUE;
             END IF;
 
             -- If the neighbor is not in the open set or the tentative gScore is less than the gScore of the neighbor,
             -- we add the neighbor to the open set and update the cameFrom, gScore and fScore arrays
             IF neighbor_edge.to_stop_id NOT IN (SELECT unnest(openSet)) OR tentative_gScore < (gScore -> neighbor_edge.to_stop_id::TEXT)::REAL THEN
-                RAISE NOTICE ' Neighbor is not in open set or lower gScore';
                 openSet := array_append(openSet, neighbor_edge.to_stop_id);
                 cameFrom := cameFrom || hstore(neighbor_edge.to_stop_id::TEXT, neighbor_edge.edge_id::TEXT);
                 gScore := gScore || hstore(neighbor_edge.to_stop_id::TEXT, tentative_gScore::TEXT);
                 fScore := fScore || hstore(neighbor_edge.to_stop_id::TEXT, (tentative_gScore + distance_heuristic(neighbor_edge.to_stop_id, to_node))::TEXT);
+                arrivalTime := arrivalTime || hstore(neighbor_edge.to_stop_id::TEXT, (COALESCE(neighbor_edge.departure_time::TEXT, arrivalTime -> current::TEXT)::REAL + neighbor_edge.travel_time)::TEXT);
             END IF;
         END LOOP;
     END LOOP;
