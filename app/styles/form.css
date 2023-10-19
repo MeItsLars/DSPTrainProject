@@ -192,11 +192,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 	padding: 0px 50px;
 }
 
-.submit-btn:hover {
-	color: var(--primary-dark);
+.submit-btn:disabled {
 	background-color: gray;
-	font-weight: 700;
-	height: 50px;
-	border: none;
-	padding: 0px 50px;
+	color: var(--secondary-dark);
 }

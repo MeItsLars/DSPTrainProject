@@ -24,10 +24,11 @@ try {
     // Set PDO to throw exceptions on error
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // You're connected! You can now use $pdo to interact with the database.
+    // You're c onnected! You can now use $pdo to interact with the database.
 } catch (PDOException $e) {
     die("Database connection failed: " . $e);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +40,7 @@ try {
     <title>Find your way</title>
 
     <link rel="stylesheet" href="./styles/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="./styles/style.css">
 </head>
 
 <?php
@@ -48,8 +49,13 @@ try {
 
 ?>
 <style type="text/css">
+    
+ pre {
+  background-color: wheat;
+  padding: 10px;
+ }  
     .list{
-        background: url('../ressources/img/<?php echo $selectedBg; ?>') no-repeat center center;
+        background: url('./ressources/img/<?php echo $selectedBg; ?>') no-repeat center center;
         width: 70vw;
         position: relative;
         height: 100vh;
@@ -61,36 +67,31 @@ try {
     }
 </style>
 
-<body>
+<body id="contents">
+    <div class="loader">
+        <div class="cont">
+            <div class="track"></div>
+            <div class="train"></div>
+        </div>
+        <p class="credit">
+            Created by <a href="https://lenadesign.org/2021/04/12/css-train-front-animation-loader/">Lena Stanley</a>    
+        </p>
+    </div>
 
     <section class="form">
         <?php include("./modules/form.php") ?>
     </section>
 
     <section class="list">
-        <?php include("./modules/table.php") ?>
+        <?php 
+            if(!empty($_POST)) var_dump($_POST);
+        ?>
+        <!-- <?php include("./modules/table.php") ?> -->
     </section>
 
     <script src="script/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="script/jquery-3.7.1.min.js"></script>
-    <script>
-        $('.form-control').each(function() {
-            floatedLabel($(this));
-        });
-
-        $('.form-control').on('input', function() {
-            floatedLabel($(this));
-        });
-
-        function floatedLabel(input) {
-            var $field = input.closest('.form-group');
-            if (input.val()) {
-                $field.addClass('input-not-empty');
-            } else {
-                $field.removeClass('input-not-empty');
-            }
-        }
-    </script>
+    <script src="script/script.js"></script>
 </body>
 
 </html>
