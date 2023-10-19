@@ -29,6 +29,10 @@ def find_route(start_stop, end_stop, travel_day, travel_time):
     """.format(start_stop, end_stop, travel_day, travel_time_converted)
     cursor.execute(query)
 
+    if (cursor.rowcount == 0):
+        print("No route found")
+        return
+
     result_stops = cursor.fetchall()
     print("Pathfinder result: ")
     max_from_stop_name_length = max([len(row[0]) for row in result_stops])
@@ -74,10 +78,12 @@ umea_marknadsgatan = 56957 # Marknadsgatan (Ikea)
 ornskoldsvik_rese = 1570 # Örnsköldsvik Resecentrum
 umea_ostra = 1581 # Umeå Östra
 umea_central = 190 # Umeå Centralstation
+storuman_resecentrum = 428 # Storuman Resecentrum
 uppsala_central = 5 # Uppsala Centralstation
 
-find_route(umea_universum, umea_alidhem, '20-10-2023', '16:05:00')
-find_route(umea_universum, umea_alidhem, '20-10-2023', '16:00:00')
+# find_route(umea_universum, umea_alidhem, '20-10-2023', '16:05:00')
+# find_route(umea_universum, umea_alidhem, '20-10-2023', '16:00:00')
+find_route(storuman_resecentrum, umea_central, '21-10-2023', '04:00:00')
 
 # Close the connection to the PostgreSQL database
 cursor.close()

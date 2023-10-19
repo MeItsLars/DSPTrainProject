@@ -145,7 +145,7 @@ BEGIN
             WHERE e.from_stop_id = current AND (
                 e.departure_time IS NULL OR (
                     e.departure_time >= (arrivalTime -> current::TEXT)::REAL
-                    AND e.departure_time <= (arrivalTime -> current::TEXT)::REAL + 1800
+                    -- AND e.departure_time <= (arrivalTime -> current::TEXT)::REAL + 1800
                     AND EXISTS (
                         SELECT 1
                         FROM calendar_dates cd
