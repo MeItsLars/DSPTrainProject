@@ -22,10 +22,9 @@ def find_route(start_stop, end_stop, travel_day, travel_time):
         ON e.edge_id = pathfinder_result.edge_id
     INNER JOIN stops s1 ON e.from_stop_id = s1.stop_id
     INNER JOIN stops s2 ON e.to_stop_id = s2.stop_id
-    INNER JOIN stop_times st ON e.trip_id = st.trip_id AND e.from_stop_id = st.stop_id
-    INNER JOIN trips t ON e.trip_id = t.trip_id
-    INNER JOIN routes r ON t.route_id = r.route_id
-    ORDER BY e.departure_time ASC
+    LEFT JOIN stop_times st ON e.trip_id = st.trip_id AND e.from_stop_id = st.stop_id
+    LEFT JOIN trips t ON e.trip_id = t.trip_id
+    LEFT JOIN routes r ON t.route_id = r.route_id;
     """.format(start_stop, end_stop, travel_day, travel_time_converted)
     cursor.execute(query)
 
@@ -85,8 +84,13 @@ uppsala_central = 5 # Uppsala Centralstation
 # find_route(umea_universum, umea_alidhem, '20-10-2023', '16:05:00')
 # find_route(umea_universum, umea_alidhem, '20-10-2023', '16:00:00')
 # find_route(storuman_resecentrum, uppsala_central, '21-10-2023', '04:00:00')
-find_route(storuman_resecentrum, umea_busstation, '21-10-2023', '04:00:00')
-find_route(umea_central, uppsala_central, '21-10-2023', '10:22:00')
+# find_route(storuman_resecentrum, umea_busstation, '21-10-2023', '04:00:00')
+# find_route(umea_central, uppsala_central, '21-10-2023', '04:00:00')
+find_route(umea_alidhem, umea_vasaplan, '20-10-2023', '10:05:00')
+# find_route(umea_vasaplan, umea_alidhem, '20-10-2023', '10:12:00')
+
+# find_route(umea_central, ornskoldsvik_rese, '21-10-2023', '10:30:00')
+
 
 # Close the connection to the PostgreSQL database
 cursor.close()
