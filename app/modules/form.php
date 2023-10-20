@@ -9,31 +9,54 @@
     </div>
     <form action="#" method="post">
         <div class="form-group">
-            <input class="form-control" id="from"  type="text" name="from" list="citynameFrom" oninput="myFunction(this)">
+            <input class="form-control" id="from" type="text" name="from" list="citynameFrom" oninput="myFunction(this)">
             <span class="form-label">from</span>
-            <datalist id="" class="from">
+            <datalist id="citynameFrom" class="from">
                 <?php
                     foreach ($stops as $stop) { 
-                        echo '<option value="'.$stop["stop_id"].'">'.$stop["stop_name"].'</option>\n';                    
+                        echo '<option value="'.$stop["stop_name"].'">'.$stop["stop_id"].'</option>';                   
                     }
                 ?>
             </datalist>
+            <input type="hidden" name="from_result" id="from_result">
         </div>
         <script>
-
+            document.getElementById('from').addEventListener('input', function() {
+                const selectedOption = document.querySelector(`#citynameFrom option[value="${this.value}"]`);
+                if (selectedOption) {
+                    const selectedLabel = selectedOption.textContent;
+                    // console.log(`Selected Label: ${selectedLabel}`);
+                    // console.log(`Selected Value: ${this.value}`);
+                    document.getElementById('from_result').value = selectedLabel;
+                }
+            });
         </script>
+
         <div class="form-group">
             <input class="form-control" id="to" type="text" name="to"  list="citynameTo" oninput="myFunction(this)">
             <span class="form-label">to</span>
 
-            <datalist id="" class="to">
+            <datalist id="citynameTo" class="to">
 
                 <?php
                     foreach ($stops as $stop) { 
-                        echo '<option value="'.$stop["stop_id"].'">'.$stop["stop_name"].'</option>\n';                    
+                        // echo '<option value="'.$stop["stop_id"].'">'.$stop["stop_name"].'</option>\n';                    
+                        echo '<option value="'.$stop["stop_name"].'">'.$stop["stop_id"].'</option>';                   
                     }
                 ?>
             </datalist>
+            <input type="hidden" name="to_result" id="to_result">
+            <script>
+                document.getElementById('to').addEventListener('input', function() {
+                    const selectedOption = document.querySelector(`#citynameTo option[value="${this.value}"]`);
+                    if (selectedOption) {
+                        const selectedLabel = selectedOption.textContent;
+                        console.log(`Selected Label: ${selectedLabel}`);
+                        console.log(`Selected Value: ${this.value}`);
+                        document.getElementById('to_result').value = selectedLabel;
+                    }
+                });
+            </script>
         </div>
         <div class="form-group">
             <div class="form-checkbox">

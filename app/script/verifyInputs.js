@@ -29,70 +29,83 @@ $(function() {
 });
 
 function verifyDate(params) {
-    const date = new Date();
-
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-    let currentDate = `${year}-${month}-${day}`;
-
-    if (currentDate > params.value) {
-        clearInput(params);
-        document.getElementById("errorMessageDate").style.visibility = "visible";
+    if(params.value == null || params.value == "") {
+        console.log('complet date');
         dateVerify = false;
     } else {
-        document.getElementById("errorMessageDate").style.visibility = "hidden";
+        console.log('completed date');
         dateVerify = true;
     }
-    verifyHour(document.getElementById("time"))
-    disableSubmit()
-}
-
-function verifyHour(params) {
-    var dateSelect = document.getElementById("date").value;
-    console.log(params.value != "" );
-    if(params.value != "") {
-        if(dateSelect === "") {
-            hourVerify = true;
-        } else {
-            const date = new Date();
-            let day = date.getDate();
-            let month = date.getMonth() + 1;
-            let year = date.getFullYear();
-            let currentDate = `${year}-${month}-${day}`;
-
-            const hour = date.getHours();
-            const min = date.getMinutes();
-
-            if(currentDate === dateSelect) {
-                currentHour = `${hour}:${min}`;
-                if (currentHour > params.value) {
-                    clearInput(params);
-                    document.getElementById("errorMessageHour").style.visibility = "visible";
-                    hourVerify = false;
-                } else {
-                    document.getElementById("errorMessageHour").style.visibility = "hidden";
-                    hourVerify = true;
-                }
-            } else {
-                document.getElementById("errorMessageHour").style.visibility = "hidden";
-                hourVerify = true;
-            }
-
-        }
-    }
-
-
     disableSubmit();
 }
+// function verifyDate(params) {
+//     const date = new Date();
+//     let day = date.getDate();
+//     let month = date.getMonth() + 1;
+//     let year = date.getFullYear();
+//     let currentDate = `${year}-${month}-${day}`;
+//     if (currentDate > params.value) {
+//         clearInput(params);
+//         document.getElementById("errorMessageDate").style.visibility = "visible";
+//         dateVerify = false;
+//     } else {
+//         document.getElementById("errorMessageDate").style.visibility = "hidden";
+//         dateVerify = true;
+//     }
+//     verifyHour(document.getElementById("time"))
+//     disableSubmit()
+// }
+
+function verifyHour(params) {
+    if(params.value == null || params.value == "") {
+        console.log('complet hour');
+        hourVerify = false;
+    } else {
+        console.log('completed hour');
+        hourVerify = true;
+    }
+    disableSubmit();
+}
+// function verifyHour(params) {
+//     var dateSelect = document.getElementById("date").value;
+//     console.log(params.value != "" );
+//     if(params.value != "") {
+//         if(dateSelect === "") {
+//             hourVerify = true;
+//         } else {
+//             const date = new Date();
+//             let day = date.getDate();
+//             let month = date.getMonth() + 1;
+//             let year = date.getFullYear();
+//             let currentDate = `${year}-${month}-${day}`;
+//             const hour = date.getHours();
+//             const min = date.getMinutes();
+//             if(currentDate === dateSelect) {
+//                 currentHour = `${hour}:${min}`;
+//                 if (currentHour > params.value) {
+//                     clearInput(params);
+//                     document.getElementById("errorMessageHour").style.visibility = "visible";
+//                     hourVerify = false;
+//                 } else {
+//                     document.getElementById("errorMessageHour").style.visibility = "hidden";
+//                     hourVerify = true;
+//                 }
+//             } else {
+//                 document.getElementById("errorMessageHour").style.visibility = "hidden";
+//                 hourVerify = true;
+//             }
+//         }
+//     }
+//     disableSubmit();
+// }
 
 function disableSubmit() {
-    // console.log(dateVerify);
-    // console.log(hourVerify);
-    // console.log(fromVerify);
-    // console.log(toVerify);
+    console.log("dateVerify", dateVerify);
+    console.log("hourVerify", hourVerify);
+    console.log("fromVerify", fromVerify);
+    console.log("toVerify", toVerify);
 
-    // console.log(!(dateVerify && hourVerify && fromVerify && toVerify));
+    console.log("peut envoyer", (dateVerify && hourVerify && fromVerify && toVerify));
     document.getElementById("mySubmit").disabled = !(dateVerify && hourVerify && fromVerify && toVerify);
 }
 
