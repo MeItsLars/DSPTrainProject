@@ -1,4 +1,8 @@
 <?php 
+include "./functions/query.php";
+include "./functions/function.php";
+include "./modules/list_element.php";
+
 $envFile = './.env';
 $connection = (array) null;
 if (file_exists($envFile)) {
@@ -28,7 +32,6 @@ try {
 } catch (PDOException $e) {
     die("Database connection failed: " . $e);
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -49,11 +52,11 @@ try {
 
 ?>
 <style type="text/css">
-    
- pre {
-  background-color: wheat;
-  padding: 10px;
- }  
+    pre {
+        background-color: wheat;
+        padding: 10px;
+        height: 80vh;
+    }  
     .list{
         background: url('./ressources/img/<?php echo $selectedBg; ?>') no-repeat center center;
         width: 70vw;
@@ -67,7 +70,7 @@ try {
     }
 </style>
 
-<body id="contents">
+<body id="contents" onload="verifyOnLoad()">
     <div class="loader">
         <div class="cont">
             <div class="track"></div>
@@ -84,9 +87,10 @@ try {
 
     <section class="list">
         <?php 
-            if(!empty($_POST)) var_dump($_POST);
+            if(!empty($_POST)) {
+                include("./modules/trip_list.php");
+            } 
         ?>
-        <!-- <?php include("./modules/table.php") ?> -->
     </section>
 
     <script src="script/bootstrap/bootstrap.bundle.min.js"></script>

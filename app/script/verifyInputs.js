@@ -3,6 +3,13 @@ let hourVerify = false;
 let fromVerify = false;
 let toVerify = false;
 
+function verifyOnLoad() {
+    myFunction();
+    verifyDate();
+    verifyHour();
+}
+
+
 function myFunction() {
     const valueFrom = document.getElementById("from").value;
     const valueTo = document.getElementById("to").value;
@@ -28,7 +35,8 @@ $(function() {
     $('#date').attr('min', minDate);
 });
 
-function verifyDate(params) {
+function verifyDate() {
+    var params = document.getElementById('date');
     if(params.value == null || params.value == "") {
         console.log('complet date');
         dateVerify = false;
@@ -56,7 +64,8 @@ function verifyDate(params) {
 //     disableSubmit()
 // }
 
-function verifyHour(params) {
+function verifyHour() {
+    var params = document.getElementById('time');
     if(params.value == null || params.value == "") {
         console.log('complet hour');
         hourVerify = false;

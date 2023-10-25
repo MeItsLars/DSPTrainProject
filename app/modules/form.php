@@ -1,6 +1,5 @@
 <link rel="stylesheet" href="./styles/form.css">
 <?php 
-    include "./functions/query.php";
     $stops = select_stops($pdo);
 ?>
 <div class="booking-form">
@@ -9,7 +8,14 @@
     </div>
     <form action="#" method="post">
         <div class="form-group">
-            <input class="form-control" id="from" type="text" name="from" list="citynameFrom" oninput="myFunction(this)">
+            <input 
+                class="form-control" 
+                value="<?php if(!empty($_POST['from'])) echo $_POST['from']; ?>" 
+                id="from" 
+                type="text" 
+                name="from" 
+                list="citynameFrom" 
+                oninput="myFunction(this)">
             <span class="form-label">from</span>
             <datalist id="citynameFrom" class="from">
                 <?php
@@ -18,22 +24,22 @@
                     }
                 ?>
             </datalist>
-            <input type="hidden" name="from_result" id="from_result">
+            <input type="hidden" value="<?php if(!empty($_POST['from_result'])) echo $_POST['from_result']; ?>" name="from_result" id="from_result">
         </div>
         <script>
             document.getElementById('from').addEventListener('input', function() {
                 const selectedOption = document.querySelector(`#citynameFrom option[value="${this.value}"]`);
                 if (selectedOption) {
                     const selectedLabel = selectedOption.textContent;
-                    // console.log(`Selected Label: ${selectedLabel}`);
-                    // console.log(`Selected Value: ${this.value}`);
+                    console.log(`Selected Label: ${selectedLabel}`);
+                    console.log(`Selected Value: ${this.value}`);
                     document.getElementById('from_result').value = selectedLabel;
                 }
             });
         </script>
 
         <div class="form-group">
-            <input class="form-control" id="to" type="text" name="to"  list="citynameTo" oninput="myFunction(this)">
+            <input class="form-control" value="<?php if(!empty($_POST['to'])) echo $_POST['to']; ?>" id="to" type="text" name="to"  list="citynameTo" oninput="myFunction(this)">
             <span class="form-label">to</span>
 
             <datalist id="citynameTo" class="to">
@@ -45,7 +51,7 @@
                     }
                 ?>
             </datalist>
-            <input type="hidden" name="to_result" id="to_result">
+            <input type="hidden" value="<?php if(!empty($_POST['to_result'])) echo $_POST['to_result']; ?>" name="to_result" id="to_result">
             <script>
                 document.getElementById('to').addEventListener('input', function() {
                     const selectedOption = document.querySelector(`#citynameTo option[value="${this.value}"]`);
@@ -58,29 +64,17 @@
                 });
             </script>
         </div>
-        <div class="form-group">
-            <div class="form-checkbox">
-                <label for="Departure">
-                    <input type="radio" id="Departure" name="Departure" checked>
-                    <span></span>Departure
-                </label>
-                <label for="Arrival">
-                    <input type="radio" id="Arrival" name="Arrival">
-                    <span></span>Arrival
-                </label>
-            </div>
-        </div>
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <input class="form-control" id="date" onblur="verifyDate(this)" name="date" type="date">
+                    <input class="form-control" value="<?php if(!empty($_POST['date'])) echo $_POST['date']; ?>" id="date" onblur="verifyDate()" name="date" type="date">
                     <span class="form-label">Date</span>
                     <p class="errorMessageDate" id="errorMessageDate">Invalide date</p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input class="form-control" id="time" onblur="verifyHour(this)" name="time" type="time">
+                    <input class="form-control" value="<?php if(!empty($_POST['time'])) echo $_POST['time']; ?>" id="time" onblur="verifyHour()" name="time" type="time">
                     <span class="form-label">Hour</span>
                     <p class="errorMessageHour" id="errorMessageHour">Invalide hour</p>
                 </div>
