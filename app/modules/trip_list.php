@@ -18,11 +18,10 @@
                                         array_push($stops[$result['trip_id']], $result);
                                     }
                                 }
-                                // var_dump($stops[""]);
-                                $currentStep = null;
+                                // var_dump($stops);
                                 $currentStop = 0;
+                                $idTranfert = 1;
                                 foreach ($stops as $key => $stop) {
-                                    $currentStep = $key;
                                     if($key != "") {
                                         echo "<div class='group_list'>";
                                         echo "<div class='borderLeft'></div>";
@@ -40,14 +39,18 @@
                                         echo "</div>";
                                     }
                                     // echo sizeof($stops[""]);
-                                    if($currentStop !== 0 && $currentStop !== 2) {
+                                    // echo $idTranfert;
+                                    // echo $currentStop;
+                                    // echo sizeof($stops) - 1;
+                                    if($currentStop !== 0 && $currentStop !== (sizeof($stops) - 1)) {
                                         echo "<div class='group_list'>";
                                         echo "<div class='borderLeft borderDash'></div>";
                                         list_walk(
-                                            $stops[""][$currentStop],
-                                            $stops[""][$currentStop + 1]
+                                            $stops[""][$idTranfert],
+                                            $stops[""][$idTranfert + 1]
                                         );
                                         echo "</div>";
+                                        $idTranfert += 2; 
                                     }
                                     $currentStop++;
                                 }
