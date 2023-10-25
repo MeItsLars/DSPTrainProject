@@ -16,7 +16,7 @@ function list_element($title, $infos, $sec) {
 
 function list_walk($stop_1, $stop_2) {
     echo "<li>
-        <p>Walk from ".$stop_1['s1_stop']." to ".$stop_2['s2_stop']."</p>
+        <p>Walk from ".$stop_1['s2_stop']." to ".$stop_2['s1_stop']."</p>
     </li>
     ";
 }

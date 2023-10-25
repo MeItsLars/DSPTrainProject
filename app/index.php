@@ -1,4 +1,6 @@
 <?php 
+session_start();
+
 include "./functions/query.php";
 include "./functions/function.php";
 include "./modules/list_element.php";

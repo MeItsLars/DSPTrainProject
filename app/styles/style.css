@@ -273,3 +273,25 @@
     left: 0;
     right: -55.8px;
 }
+/* ===== Scrollbar CSS ===== */
+  /* Firefox */
+  #content {
+    scrollbar-width: auto;
+    scrollbar-color: var(--secondary-dark) white;
+  }
+
+  /* Chrome, Edge, and Safari */
+  #content::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  #content::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: rgba(114, 124, 245, 0.2);
+  }
+
+  #content::-webkit-scrollbar-thumb {
+    background-color: var(--secondary-dark);
+    border-radius: 10px;
+    border: 3px solid white;
+  }
