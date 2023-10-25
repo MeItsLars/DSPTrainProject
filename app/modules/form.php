@@ -20,7 +20,7 @@
             <datalist id="citynameFrom" class="from">
                 <?php
                     foreach ($stops as $stop) { 
-                        echo '<option value="'.$stop["stop_name"].'">'.$stop["stop_id"].'</option>';                   
+                        echo '<option value="'.enleverCaracteresSpeciaux($stop["stop_name"]).'">'.$stop["stop_id"].'</option>';                   
                     }
                 ?>
             </datalist>
@@ -46,8 +46,7 @@
 
                 <?php
                     foreach ($stops as $stop) { 
-                        // echo '<option value="'.$stop["stop_id"].'">'.$stop["stop_name"].'</option>\n';                    
-                        echo '<option value="'.$stop["stop_name"].'">'.$stop["stop_id"].'</option>';                   
+                        echo '<option value="'.enleverCaracteresSpeciaux($stop["stop_name"]).'">'.$stop["stop_id"].'</option>';                   
                     }
                 ?>
             </datalist>
