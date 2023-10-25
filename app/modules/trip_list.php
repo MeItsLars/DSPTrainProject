@@ -18,7 +18,7 @@
                                         array_push($stops[$result['trip_id']], $result);
                                     }
                                 }
-                                var_dump($stops[""]);
+                                // var_dump($stops[""]);
                                 $currentStep = null;
                                 $currentStop = 0;
                                 foreach ($stops as $key => $stop) {
@@ -39,7 +39,7 @@
                                         );
                                         echo "</div>";
                                     }
-                                    echo sizeof($stops[""]);
+                                    // echo sizeof($stops[""]);
                                     if($currentStop !== 0 && $currentStop !== 2) {
                                         echo "<div class='group_list'>";
                                         echo "<div class='borderLeft borderDash'></div>";
