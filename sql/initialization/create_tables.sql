@@ -100,3 +100,9 @@ CREATE TABLE IF NOT EXISTS attributions (
     is_operator INTEGER NOT NULL,
     FOREIGN KEY (trip_id) REFERENCES trips (trip_id)
 );
+
+CREATE TABLE IF NOT EXISTS route_types (
+    code INT NOT NULL,
+    name TEXT,
+    PRIMARY KEY (code)
+);
