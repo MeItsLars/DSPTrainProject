@@ -51,7 +51,6 @@
     align-items: center;
     justify-content: center;
     height:100vh;
-    display: none;
   }
   .cont {
     position: relative;
