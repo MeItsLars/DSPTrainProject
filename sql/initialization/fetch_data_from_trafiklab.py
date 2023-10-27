@@ -2,7 +2,7 @@ import os
 import shutil
 import zipfile
 
-data_url = 'https://opendata.samtrafiken.se/gtfs-sweden/sweden.zip?key=af66205e225149c3b7415cc43665b3a0'
+data_url = 'https://opendata.samtrafiken.se/gtfs-sweden/sweden.zip?key=[API KEY]'
 
 # Delete old data/gtfs-sverige-3 directory
 if os.path.exists('./data/gtfs-sverige-3'):
