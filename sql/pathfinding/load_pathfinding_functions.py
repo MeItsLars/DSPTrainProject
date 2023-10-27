@@ -3,7 +3,7 @@ import csv
 import psycopg2
 
 # Create connection to the PostgreSQL database
-conn = psycopg2.connect("host=188.165.199.47 dbname=transport user=postgres password=TukTukTrain")
+conn = psycopg2.connect("host=[HOST] dbname=transport user=postgres password=[PASSWORD]")
 conn.autocommit = True
 cursor = conn.cursor()
 
